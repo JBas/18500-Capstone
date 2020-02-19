@@ -200,6 +200,7 @@ def minimizeCamCount(params, vdata):
     problem.objective.set_sense(problem.objective.sense.minimize)
     problem.objective.set_name("Camera Count")
 
+    print("Adding x to problem...", end=" ")
     # add x to problem
     xdata = setupX(params)
     x = xdata.flatten().tolist()
@@ -208,7 +209,8 @@ def minimizeCamCount(params, vdata):
                           lb = [0]*len(x),
                           ub = [1]*len(x),
                           types = ["B"]*len(x))
-    
+    print("Done")
+    print("Adding y to problem...", end=" ")
     # add y to problem
     ydata = setupY(params)
     y = ydata.flatten().tolist()
@@ -218,6 +220,8 @@ def minimizeCamCount(params, vdata):
                           ub = [1]*len(y),
                           types = ["B"]*len(y))
     
+    print("Done")
+    print("Adding v to problem...", end=" ")
     # add v to problem
     problem.variables.add(obj = [0]*len(v),
                           names = vnames,
@@ -225,6 +229,8 @@ def minimizeCamCount(params, vdata):
                           ub = [1]*len(v),
                           types = ["B"]*len(v))
 
+    print("Done")
+    print("Adding linear constraints to problem...", end=" ")
     for k in range(N_T):
         for i in range(N_C):
             for j in range(N_hD):
@@ -237,6 +243,8 @@ def minimizeCamCount(params, vdata):
                             problem.linear_constraints.add(lin_expr=[L],
                                                            senses=["E"],
                                                            rhs=[val])
+    print("Done")
+    print("Adding quadratic constraints to problem...", end=" ")
     for k in range(N_T):
         Q = cplex.SparseTriple(vdata[1][k, :, :, :, :, :].flatten().tolist(), x, [1.0]*len(x))
         L = cplex.SparsePair([y[k]], [-1.0])
@@ -244,6 +252,8 @@ def minimizeCamCount(params, vdata):
                                           quad_expr=Q,
                                           sense="G",
                                           rhs=0.0)
+    print("Done")
+    print("Solving problem...")
     problem.solve()
     status = problem.solution.get_status()
     print("Solution status: ", status, ":", end=" ")

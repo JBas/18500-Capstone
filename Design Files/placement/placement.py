@@ -11,6 +11,7 @@ from optimizer import minimizeCamCount
 
 
 def solve(params, vdata):
+    print("Minimizing camera count...")
     minimizeCamCount(params, vdata)
     sys.exit()
     return
