@@ -32,7 +32,7 @@ if __name__=="__main__":
     vdata = None
     params = None
     try:
-        f = open("parameters.data", "rb")
+        f = open("data/parameters.data", "rb")
         params = pickle.load(f)
         f.close()
         print("Read parameters.data!")
@@ -44,7 +44,7 @@ if __name__=="__main__":
     assert(params is not None)
     
     try:
-        f = open("v.data", "rb")
+        f = open("data/v.data", "rb")
         vdata = pickle.load(f)
         f.close()
         print("Read v.data!")
@@ -52,8 +52,9 @@ if __name__=="__main__":
         f.close()
         print("Creating the binary variable v...")
         vdata = setupV(params)
-        with open("v.data", "wb") as f:
+        with open("data/v.data", "wb") as f:
             pickle.dump(vdata, f)
+        print("Saved v.data!")
 
 
     assert(vdata is not None)

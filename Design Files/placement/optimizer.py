@@ -108,7 +108,7 @@ def setupV(data):
     N_A = data["N_A"]
     N_T = data["N_T"]
     
-    v = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=int)
+    v = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=float)
     names = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=object)
     for k in range(N_T):
         target = target_locations[k]
@@ -127,14 +127,14 @@ def setupV(data):
                                 "T": camera_types[t][2]
                             }
                             vis_poly = calcTrapezoidalFOV(camera_params)
-                            varname = "v(" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + str(k) + ")"
+                            varname = "v(" + str(k) + "_" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + ")"
                             names[k, i, j, d, e, t] = varname
 
                             if (vis_poly is None):
                                 v[k, i, j, d, e, t] = 0
                                 continue
 
-                            varval = int(isCellCovered(target, vis_poly, cell_size))
+                            varval = isCellCovered(target, vis_poly, cell_size)
                             v[k, i, j, d, e, t] = varval
 
     return [v, names]
@@ -167,25 +167,19 @@ def setupX(data):
                 for e in range(N_E):
                     for t in range(N_A):
                         varname = "x(" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + ")"
-                        x[i, j, d, e, t] = varname
+                        xdata[i, j, d, e, t] = varname
     
     return xdata
 
 
-def setupY(problem, data):
-    target_locations = data["tpos"]
+def setupY(data):
     N_T = data["N_T"]
     
-    y = []
+    ydata = np.zeros(N_T, dtype=object)
     for k in range(N_T):
         varname = "y(" + str(k) + ")"
-        y.append(varname)
-    problem.variables.add(obj = [0]*len(y),
-                          names = y,
-                          lb = [0]*len(y),
-                          ub = [1]*len(y),
-                          types = ["B"]*len(y))
-    return y
+        ydata[k] = varname
+    return ydata
 
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PHASE 1: find min camera count given conditions #
@@ -207,7 +201,7 @@ def minimizeCamCount(params, vdata):
     problem.objective.set_name("Camera Count")
 
     # add x to problem
-    xdata = setupX(problem, params)
+    xdata = setupX(params)
     x = xdata.flatten().tolist()
     problem.variables.add(obj = [1]*len(x),
                           names = x,
@@ -216,9 +210,14 @@ def minimizeCamCount(params, vdata):
                           types = ["B"]*len(x))
     
     # add y to problem
-    y = setupY(problem, params)
+    ydata = setupY(params)
+    y = ydata.flatten().tolist()
+    problem.variables.add(obj = [0]*len(y),
+                          names = y,
+                          lb = [0]*len(y),
+                          ub = [1]*len(y),
+                          types = ["B"]*len(y))
     
-
     # add v to problem
     problem.variables.add(obj = [0]*len(v),
                           names = vnames,
@@ -232,34 +231,23 @@ def minimizeCamCount(params, vdata):
                 for d in range(N_vD):
                     for e in range(N_E):
                         for t in range(N_A):
-                            val = vdata[0][k, i, j, d, e, t]
+                            val = float(vdata[0][k, i, j, d, e, t])
                             name = vdata[1][k, i, j, d, e, t]
-                            problem.linear_constraints.add(lin_expr=[cplex.SparsePair([name], [1])],
+                            L = cplex.SparsePair([name], [1])
+                            problem.linear_constraints.add(lin_expr=[L],
                                                            senses=["E"],
                                                            rhs=[val])
     for k in range(N_T):
-        for i in range(N_C):
-            for j in range(N_hD):
-                for d in range(N_vD):
-                    for e in range(N_E):
-                        for t in range(N_A):
-                            problem.quadratic_constraints.add(quad_expr=[cplex.SparseTriple(names[k, i, j, d, e, t], x[t + e], [1])],
-                                                           senses=["G"],
-                                                           rhs=[y[k]])
+        Q = cplex.SparseTriple(vdata[1][k, :, :, :, :, :].flatten().tolist(), x, [1.0]*len(x))
+        L = cplex.SparsePair([y[k]], [-1.0])
+        problem.quadratic_constraints.add(lin_expr=L,
+                                          quad_expr=Q,
+                                          sense="G",
+                                          rhs=0.0)
+    problem.solve()
+    status = problem.solution.get_status()
+    print("Solution status: ", status, ":", end=" ")
+    solution = problem.solution.get_objective_value()
+    print("Solution value: ", solution)
+
     problem.write("model.lp")
-"""
-    for k in range(N_T):
-        for i in range(N_C):
-            for j in range(N_hD):
-                for d in range(N_vD):
-                    for e in range(N_E):
-                        for t in range(N_A):
-                            problem.quad_constraints.add(lin_expr=[cplex.SparsePair([varname], [1])],
-                                senses="G",
-                                rhs=[y[k]])
-"""    
-"""
-    problem.linear_constraints.add(lin_expr=lhs,
-                                   senses="G",
-                                   rhs=rhs)
-"""
