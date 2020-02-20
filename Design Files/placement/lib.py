@@ -1,6 +1,12 @@
 """
 
 """
+import numpy as np
+import cplex
+from cplex.exceptions import CplexSolverError
+import matplotlib.path as mplPath
+
+
 # specifies that cameras can only be at
 # locations forming the border of a square
 def getCameraLocals(xs, ys):
@@ -45,13 +51,13 @@ def calcTrapezoidalFOV(options):
     # get trapezoid vertices assuming (x0, y0) == (0, 0) and phi == 0
     trapezoid = np.array([
                          [h*np.tan(psi)],
-                         [(h / np.cos(psi))*np.tan(t1/2)],
+                         [(h / np.cos(psi))*np.abs(np.tan(t1/2))],
                          [h*np.tan(psi)],
-                         [(h / np.cos(psi))*-np.tan(t1/2)],
+                         [(h / np.cos(psi))*-np.abs(np.tan(t1/2))],
                          [h*np.tan(psi + t2)],
-                         [(h / np.cos(psi + t2))*np.tan(t1/2)],
+                         [(h / np.cos(psi + t2))*np.abs(np.tan(t1/2))],
                          [h*np.tan(psi + t2)],
-                         [(h / np.cos(psi + t2))*-np.tan(t1/2)]
+                         [(h / np.cos(psi + t2))*-np.abs(np.tan(t1/2))]
                          ])
     # caculate trapezoid vertex by rotating by phi
     M = np.array([
@@ -96,7 +102,8 @@ def setupV(data):
     N_T = data["N_T"]
     
     v = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=object)
-    names = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=object)
+    vals = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A))
+    v_eq_constr = np.zeros((N_T, N_C, N_hD, N_vD, N_E, N_A), dtype=object)
     for k in range(N_T):
         target = tpos[k]
         for i in range(N_C):
@@ -113,17 +120,48 @@ def setupV(data):
                                 "t2": types[t][1],
                                 "T": types[t][2]
                             }
+                            name = "v(" + str(k) + "_" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + ")"
+                            v[k, i, j, d, e, t] = name
+                            v_eq_constr[k, i, j, d, e, t] = cplex.SparsePair([name], [1])
+
                             vis_poly = calcTrapezoidalFOV(camera_params)
-                            varname = "v(" + str(k) + "_" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + ")"
-                            names[k, i, j, d, e, t] = varname
-
                             if (vis_poly is None):
-                                v[k, i, j, d, e, t] = 0
-                                continue
+                                vals[k, i, j, d, e, t] = 0
+                            else:
+                                val = isCellCovered(target, vis_poly, size)
+                                vals[k, i, j, d, e, t] = val 
 
-                            varval = isCellCovered(target, vis_poly, size)
-                            v[k, i, j, d, e, t] = varval
+    return [v, vals, v_eq_constr]
 
-    return [v, names]
+def setupX(data):
+    N_C = data["N_C"]
+    N_hD = data["N_hD"]
+    N_vD = data["N_vD"]
+    N_E = data["N_E"]
+    N_A = data["N_A"]
+    N_T = data["N_T"]
 
+    """
+    x_ijdet is 1 if there exists a camera at position i
+            with horizontal orientation j, vertical orientation d, 
+            height e, and angle of view t
+    """
+    xdata = np.zeros((N_C, N_hD, N_vD, N_E, N_A), dtype=object)
+    for i in range(N_C):
+        for j in range(N_hD):
+            for d in range(N_vD):
+                for e in range(N_E):
+                    for t in range(N_A):
+                        name = "x(" + str(i) + "_" + str(j) + "_" + str(d) + "_" + str(e) + "_" + str(t) + ")"
+                        xdata[i, j, d, e, t] = name
+    
+    return xdata
 
+def setupY(N_T):
+    y = []
+    y_constr = []
+    for k in range(N_T):
+        name = "y(" + str(k) + ")"
+        y.append(name)
+        y_constr.append(cplex.SparsePair([name], [1]))
+    return [y, y_constr]

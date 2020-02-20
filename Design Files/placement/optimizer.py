@@ -13,12 +13,12 @@ def minimizeCamCount(data):
 
     x = xdata.flatten().tolist()
 
-    y = ydata[0].flatten().tolist()
+    y = ydata[0]
     y_constr = ydata[1]
 
     v = vdata[0].flatten().tolist()
     vvals_eq = vdata[1].flatten().tolist()
-    v_eq_constr = vdata[2]
+    v_eq_constr = vdata[2].flatten().tolist()
 
     options = data["options"]
 
@@ -91,8 +91,10 @@ def minimizeCamCount(data):
     problem.solve()
     status = problem.solution.get_status()
     print("\n\n\tSolution status: ", status)
-    solution = problem.solution.get_objective_value()
-    print("\tSolution value: ", solution)
+
+    if (status != 103):
+        solution = problem.solution.get_objective_value()
+        print("\tSolution value: ", solution)
 
     return
 

@@ -21,13 +21,6 @@ from optimizer import isCellCovered
 from optimizer import minimizeCamCount
 """
 
-def solve(params, vdata):
-    print("Minimizing camera count...")
-    minimizeCamCount(params, vdata)
-    sys.exit()
-    return
-
-
 def show(params):
     #fig, ax = plt.subplots()
     #ax.set_xticks()
