@@ -1,7 +1,6 @@
 import sys
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
 
 from lib import setupX, setupY, setupV
 from defaults import getOptions

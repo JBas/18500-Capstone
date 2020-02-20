@@ -3,8 +3,6 @@ import numpy as np
 import cplex
 from cplex.exceptions import CplexSolverError
 
-
-
 # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PHASE 1: find min camera count given conditions #
 # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -14,10 +12,12 @@ def minimizeCamCount(data):
     vdata = data["vdata"]
 
     x = xdata.flatten().tolist()
+
     y = ydata[0].flatten().tolist()
-    y_ge_constr = ydata[1]
+    y_constr = ydata[1]
+
     v = vdata[0].flatten().tolist()
-    vals = vdata[1].flatten().tolist()
+    vvals_eq = vdata[1].flatten().tolist()
     v_eq_constr = vdata[2]
 
     options = data["options"]
@@ -62,12 +62,15 @@ def minimizeCamCount(data):
 
     print("Done")
     print("\tAdding linear constraints to problem...", end=" ")
+    problem.linear_constraints.add(lin_expr=y_constr,
+                                   senses=["E"]*len(y_constr),
+                                   rhs=[1]*len(y_constr))
+    problem.linear_constraints.add(lin_expr=[cplex.SparsePair(y, [1]*len(y))],
+                                   senses=["G"],
+                                   rhs=[N_T*CVR])
     problem.linear_constraints.add(lin_expr=v_eq_constr,
                                    senses=["E"]*len(v_eq_constr),
-                                   rhs=vals)
-    problem.linear_constraints.add(lin_expr=y_ge_constr,
-                                   senses=["G"]*len(y_ge_constr),
-                                   rhs=[N_T*CVR]*len(y_ge_constr))
+                                   rhs=vvals_eq)
     print("Done")
     print("\tAdding quadratic constraints to problem...", end=" ")
     for k in range(N_T):
@@ -80,15 +83,19 @@ def minimizeCamCount(data):
                                           rhs=0)
         problem.quadratic_constraints.add(lin_expr=L2,
                                           quad_expr=Q,
-                                          sense="G",
+                                          sense="L",
                                           rhs=0)
+    problem.write("data/model.lp")
     print("Done")
     print("\tSolving problem...")
     problem.solve()
     status = problem.solution.get_status()
-    print("\tSolution status: ", status, ":", end=" ")
+    print("\n\n\tSolution status: ", status)
     solution = problem.solution.get_objective_value()
     print("\tSolution value: ", solution)
 
-    problem.write("model.lp")
     return
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # #
+# PHASE 2: find camera parameter given camera count #
+# # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -3,21 +3,25 @@ import numpy as np
 from lib import getCameraLocals
 
 def getOptions():
-    size = 5
-    dimensions = 100
+    # 3D printer bed dimensions
+    size = 40
+    width = 215
+    length = 197
+    height = 200
 
-    x = np.arange(0, dimensions+1, size)
-    y = np.arange(0, dimensions+1, size)
-    z = np.arange(0, dimensions+1, size)
+    x = np.arange(0, width+1, size)
+    y = np.arange(0, length+1, size)
+    z = np.arange(0, height+1, size)
 
     phis = np.deg2rad(np.arange(0, 360, 25)).tolist()
     psis = np.deg2rad(np.arange(0, 360, 25)).tolist()
 
-    t1 = np.deg2rad(80)
-    t2 = np.deg2rad(80)
-    T = 60
+    # AOV = 2*arctan(d / (2*f))
+    # Arducam NOIR 8MP,
+    # TTL Serial JPEG,
 
-    types = [(t1, t2, T)]
+    types = [(np.deg2rad(16.81), np.deg2rad(12.64), 200),
+             (np.deg2rad(52.88), np.deg2rad(40.97), 10000)]
 
     pos = getCameraLocals(x, y).tolist()
 
