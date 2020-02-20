@@ -1,7 +1,6 @@
 import sys
 import pickle
 import numpy as np
-
 from lib import setupX, setupY, setupV
 from defaults import getOptions
 from optimizer import minimizeCamCount
@@ -13,6 +12,21 @@ def solve(data):
     print("Done")
     sys.exit()
     return
+
+"""
+from optimizer import setupV
+from optimizer import getCameraLocals
+from optimizer import calcTrapezoidalFOV
+from optimizer import isCellCovered
+from optimizer import minimizeCamCount
+"""
+
+def solve(params, vdata):
+    print("Minimizing camera count...")
+    minimizeCamCount(params, vdata)
+    sys.exit()
+    return
+
 
 def show(params):
     #fig, ax = plt.subplots()
