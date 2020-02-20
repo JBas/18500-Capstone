@@ -3,20 +3,17 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-from optimizer import setupV
-from optimizer import getCameraLocals
-from optimizer import calcTrapezoidalFOV
-from optimizer import isCellCovered
+from lib import setupX, setupY, setupV
+from defaults import getOptions
 from optimizer import minimizeCamCount
 
 
-def solve(params, vdata):
+def solve(data):
     print("Minimizing camera count...")
-    minimizeCamCount(params, vdata)
+    minimizeCamCount(data)
+    print("Done")
     sys.exit()
     return
-
-
 
 def show(params):
     #fig, ax = plt.subplots()
@@ -30,34 +27,56 @@ def show(params):
     pass
 
 if __name__=="__main__":
+    data = None
     vdata = None
-    params = None
+    xdata = None
+    ydata = None
+    options = None
+
+    # try reading from data.pkl file
     try:
-        f = open("data/parameters.data", "rb")
-        params = pickle.load(f)
-        f.close()
-        print("Read parameters.data!")
+        print("Reading data.pkl...", end= " ")
+        with open("data/data.pkl", "rb") as f:
+            data = pickle.load(f)
+        print("Done")
     except FileNotFoundError:
-        f.close()
-        print("Please have some parameters to solve the dang problem with!")
-        sys.exit()
+        # create options
+        print("\nNo data.pkl! Using defaults...", end= " ")
+        options = getOptions()
+        print("Done")
 
-    assert(params is not None)
-    
-    try:
-        f = open("data/v.data", "rb")
-        vdata = pickle.load(f)
-        f.close()
-        print("Read v.data!")
-    except FileNotFoundError:
-        f.close()
-        print("Creating the binary variable v...")
-        vdata = setupV(params)
-        with open("data/v.data", "wb") as f:
-            pickle.dump(vdata, f)
-        print("Saved v.data!")
+        # create vdata
+        print("Creating vdata...", end= " ")
+        vdata = setupV(options)
+        print("Done")
 
+        # create xdata
+        print("Creating xdata...", end= " ")
+        xdata = setupX(options)
+        print("Done")
 
-    assert(vdata is not None)
-    solve(params, vdata)
+        # create ydata 
+        print("Creating ydata...", end= " ")
+        ydata = setupY(options["N_T"])
+        print("Done")
+
+        data = {
+            "options": options,
+            "vdata": vdata,
+            "xdata": xdata,
+            "ydata": ydata
+        }
+
+        print("Writing data.pkl...", end= " ")
+        with open("data/data.pkl", "wb") as f:
+            pickle.dump(data, f)
+        print("Done")
+
+    assert(data is not None)
+    assert(data["vdata"] is not None)
+    assert(data["xdata"] is not None)
+    assert(data["ydata"] is not None)
+    assert(data["options"] is not None)
+
+    solve(data)
     # show(params)
