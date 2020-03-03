@@ -1,6 +1,6 @@
-"""OctoPlus State Machine
+"""OctoPlus System Core
 
-This program implements the system state machine for OctoPlus, a 3D printing
+This program implements the system core for OctoPlus, a 3D printing
 error detection system.
 @author     Joshua Bas (jnbas@andrew.cmu.edu)
 @date       2/27/202
@@ -10,14 +10,17 @@ error detection system.
 import numpy as np
 from lib.py import *
 
-def main():
+def main(gcode):
     # user submits g-code
-    # user sets initials params
     # system created g-code model
-    # ultimaker begins print job
 
-    while system.printing():
-        # collect x, y, z, t datat from lasers
+    system = System()
+    system.createRPC(gcode)
+    
+    # ultimaker begins print job
+    system.startPrint()
+
+    while (system.status() is "printing"):
         # collect image data from camera
         
         if (interrupted or timer):
