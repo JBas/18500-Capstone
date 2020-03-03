@@ -16,6 +16,14 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
     def __init__(self):
         pass
 
+    def on_after_startup():
+        self.__logger.info("Started up!")
+        pass
+
+    def on_shutdown():
+        self.__logger.info("Shutting down!")
+        pass
+
     def handle_gcode_queuing(comm_instance,
                              phase,
                              cmd,
@@ -32,6 +40,7 @@ __plugin_name__           = "System Core"
 __plugin_description__    = "Interface between OctoPrint and the rest of the computer vision"
 __plugin_author__         = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
 __plugin_url__            = "https://github.com/JBas/18500-Capstone"
+
 
 def __plugin_load__():
     plugin = CorePlugin()
