@@ -7,25 +7,64 @@ error detection system.
 
 """
 import octoprint.plugin
+import logging
 import numpy as np
-import lib
+
+class CorePlugin(octoprint.plugin.StartupPlugin,
+                 octroprint.plugin.ShutdownPlugin):
+
+    def __init__(self):
+        pass
+
+    def handle_gcode_queuing(comm_instance,
+                             phase,
+                             cmd,
+                             cmd_type,
+                             gcode,
+                             *args,
+                             **kwargs):
+        if gcode in ("some command"):
+            logging.getLogger(__name__).info("Queuing a ___ command!")
+
+        return
 
 __plugin_name__           = "System Core"
 __plugin_description__    = "Interface between OctoPrint and the rest of the computer vision"
 __plugin_author__         = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
 __plugin_url__            = "https://github.com/JBas/18500-Capstone"
-__plugin_hooks__          = {
-    "octoprint.comm.protocol.gcode.sent": handle_gcode_sent
-}
 
-def __plugin_check__():
-    try:
+def __plugin_load__():
+    plugin = CorePlugin()
 
-    except:
-        return False
-    return True
+    global __plugin__implementation__
+    global __plugin__hooks__
+
+    __plugin_implementation__ = plugin 
+
+    __plugin_hooks__          = {
+        "octoprint.comm.protocol.gcode.sent": plugin.handle_gcode_sent,
+        "octoprint.comm.protocol.gcode.queuing": plugin.handle_gcode_queuing
+    }
+    pass
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 def main(gcode):
     # user submits g-code
     # system created g-code model
@@ -56,3 +95,4 @@ def main(gcode):
             system.update()
 
     return -1
+"""
