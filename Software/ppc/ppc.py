@@ -12,6 +12,7 @@ import numpy as np
 
 IMAGE_WIDTH     = 860
 IMAGE_HEIGHT    = 400
+M = min(IMAGE_WIDTH, IMAGE_HEIGHT)
 
 def ppc(I1, I2, C1, C2):
     """

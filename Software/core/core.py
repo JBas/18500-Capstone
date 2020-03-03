@@ -6,9 +6,25 @@ error detection system.
 @date       2/27/202
 
 """
-
+import octoprint.plugin
 import numpy as np
-from lib.py import *
+import lib
+
+__plugin_name__           = "System Core"
+__plugin_description__    = "Interface between OctoPrint and the rest of the computer vision"
+__plugin_author__         = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
+__plugin_url__            = "https://github.com/JBas/18500-Capstone"
+__plugin_hooks__          = {
+    "octoprint.comm.protocol.gcode.sent": handle_gcode_sent
+}
+
+def __plugin_check__():
+    try:
+
+    except:
+        return False
+    return True
+
 
 def main(gcode):
     # user submits g-code

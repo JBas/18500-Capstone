@@ -7,20 +7,10 @@ for OctoPlus, a 3D printing error detection system.
 @date       2/27/202
 
 """
-class System:
-    def __init__(self):
-        pass
-    
-    def printing(self) -> bool:
-        pass
-
-    def notify(self):
-        pass
-    
-    def stop(self):
-        pass
-    
-    def update(self):
-        pass
+import logging
 
 
+plugin_name = 
+descr       = 
+author      = 
+url         = 
