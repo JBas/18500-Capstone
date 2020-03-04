@@ -22,20 +22,4 @@ def getI1():
 def getI2():
     pass
 
-def check(rpc, layer):
-    I1 = getI1()
-    #I2 = getI2()
 
-    #ppc = PPC(I1, I2)
-    #ppc.generate()
-    #ppc_result = ppc.analyze(rpc, layer)
-
-    #edge_result = _____()
-
-    #do something... 
-
-    pass
-
-
-if __name__=="__main__":
-    check()
