@@ -6,12 +6,20 @@ error detection system.
 @date       2/27/202
 
 """
+from __future__ import absolute_import
+
 import octoprint.plugin
 import logging
 import numpy as np
+import threading
 
 class CorePlugin(octoprint.plugin.StartupPlugin,
                  octroprint.plugin.ShutdownPlugin):
+
+    name    = "System Core"
+    descr   = "Interface between OctoPrint and the rest of the computer vision"
+    author  = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
+    url     = "https://github.com/JBas/18500-Capstone"
 
     def __init__(self):
         pass
@@ -31,15 +39,13 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
                              gcode,
                              *args,
                              **kwargs):
-        if gcode in ("some command"):
-            logging.getLogger(__name__).info("Queuing a ___ command!")
+        if gcode and gcode is "G0":
+            logging.getLogger(__name__).info("Queuing a Z-axis command!")
+            t = Thread(target= ___,
+                       name = "Error Checker",
+                       args = ())
 
         return
-
-__plugin_name__           = "System Core"
-__plugin_description__    = "Interface between OctoPrint and the rest of the computer vision"
-__plugin_author__         = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
-__plugin_url__            = "https://github.com/JBas/18500-Capstone"
 
 
 def __plugin_load__():
@@ -47,8 +53,16 @@ def __plugin_load__():
 
     global __plugin__implementation__
     global __plugin__hooks__
+    global __plugin__name__
+    global __plugin__description__
+    global __plugin__author__
+    global __plugin__url__
 
-    __plugin_implementation__ = plugin 
+    __plugin_implementation__       = plugin
+    __plugin__name__                = plugin.name
+    __plugin__description__         = plugin.descr
+    __plugin__author__              = plugin.author
+    __plugin__url__                 = plugin.url
 
     __plugin_hooks__          = {
         "octoprint.comm.protocol.gcode.sent": plugin.handle_gcode_sent,
