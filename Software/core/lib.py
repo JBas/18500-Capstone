@@ -5,7 +5,7 @@ import picamera
 I1_FILEPATH = "I1.png"
 I2_FILEPATH = "I2.png"
 
-def check():
+def getI1():
    """ 
     camera = PiCamera(sensor_mode= ___,
                       resolution=___,
@@ -13,23 +13,26 @@ def check():
                       framerate_range=___,
                       clock_mode=___)
     """
-    camera = PiCamera()
-    try:
-        # get I1
-        try
-        camera.capture(ouput=I1_FILEPATH,
-                       format="png",
-                       use_video_port=True,
-                       resize=None,
-                       splitter_port=0,
-                       bayer=False,
-                       options=None)
-        # get I2
+    with PiCamera() as camera:
+        with picamera.array.PiRGBArray(camera) as output:
+            camera.capture(output, "rgb")
+            print("I1 is a %d by %d image!", {output.array.shape[1], output.array.shape[0]})
+    return output.array
 
-    except PiCameraError:
-        print("The camera is messed up!")
-    finally:
-        camera.close()
+def getI2():
+    pass
+
+def check(rpc, layer):
+    I1 = getI1()
+    #I2 = getI2()
+
+    #ppc = PPC(I1, I2)
+    #ppc.generate()
+    #ppc_result = ppc.analyze(rpc, layer)
+
+    #edge_result = _____()
+
+    #do something... 
 
     pass
 

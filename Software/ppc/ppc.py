@@ -14,6 +14,43 @@ from matplotlib import pyplot as plt
 
 FLANN_INDEX_LSH = 6
 
+class PPC():
+    def __init__(self, I1, I2):
+        assert(I1.shape == I2.shape), "Image shape mismatched!"
+        self.I1 = I1
+        self.I2 = I2
+        self.cloud = None
+        pass
+
+    def generate(self):
+        """
+        inputs  I1, I2: MxNx3 images
+        outputs F: fundamental matrix, just in case
+        """
+
+        pts1, pts2, matches = getMatchedPoints(I1, I2)
+
+        F, mask = cv.findFundamentalMat(pts1, pts2,
+                                        cv.FM_RANSAC,
+                                        ransacReprojThreshold=2,
+                                        confidence=.99)
+        pts1 = pts1[mask.ravel() == 1]
+        pts2 = pts2[mask.ravel() == 1]
+
+        L = cv.computeCorrespondEpilines(pts1, 1, F)
+        L_ = cv.computeCorrespondEpilines(pts2, 2, F)
+        return F
+
+    def analyze(self, rpc, layer=0):
+        assert(rpc is not None)
+        assert(layer >= 0)
+        return
+
+
+# # # # # # # # # # #
+#  Helper Functions #
+# # # # # # # # # # #
+
 def getMatchedPoints(I1, I2):
     orb = cv.ORB_create()
 
@@ -42,31 +79,10 @@ def getMatchedPoints(I1, I2):
 
     return pts1, pts2, matches
 
-def ppc(I1, I2):
-    """
-    inputs  I1, I2: MxNx3 images
-    outputs pt_cloud: Px2 point cloud
-    """
-    assert(I1.shape == I2.shape), "Image shape mismatched!"
-
-    pts1, pts2, matches = getMatchedPoints(I1, I2)
-
-    F, mask = cv.findFundamentalMat(pts1, pts2,
-                                    cv.FM_RANSAC,
-                                    ransacReprojThreshold=2,
-                                    confidence=.99)
-    pts1 = pts1[mask.ravel() == 1]
-    pts2 = pts2[mask.ravel() == 1]
-
-    L = cv.computeCorrespondEpilines(pts1, 1, F)
-    L_ = cv.computeCorrespondEpilines(pts2, 2, F)
-
-    return
-
-
 if __name__=="__main__":
     #Using 2014 dataset from http://vision.middlebury.edu/stereo/data/
     I1 = cv.imread("MiddEval3/trainingQ/Teddy/im0.png", cv.IMREAD_GRAYSCALE)
     I2 = cv.imread("MiddEval3/trainingQ/Teddy/im1.png", cv.IMREAD_GRAYSCALE)
 
-    ppc(I1, I2)
+    cloud = PPC(I1, I2)
+    cloud.generate()
