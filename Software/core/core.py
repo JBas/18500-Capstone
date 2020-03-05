@@ -6,16 +6,15 @@ error detection system.
 @date       2/27/202
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import octoprint.plugin
 import logging
 #import numpy as np
 #import threading
 #import lib
-
-MAX_ERROR_CHECK = 5
 """
+MAX_ERROR_CHECK = 5
 class CheckThread(threading.Thread):
     def __init__(self, rpc, layer, group=None, target=None, name="check",
                  args=(), kwargs=None, verbose=None):
@@ -45,26 +44,25 @@ class CheckThread(threading.Thread):
         pass
 """
 class CorePlugin(octoprint.plugin.StartupPlugin,
-                 octroprint.plugin.ShutdownPlugin):
+                 octoprint.plugin.ShutdownPlugin):
 
-    name    = "System Core"
-    descr   = "Interface between OctoPrint and the rest of the computer vision"
-    author  = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
-    url     = "https://github.com/JBas/18500-Capstone"
-    tlist = []
+#    tlist = []
 
     def __init__(self):
+        self.name    = "System Core"
+        self.descr   = "Interface between OctoPrint and the rest of the computer vision"
+        self.author  = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
+        self.url     = "https://github.com/JBas/18500-Capstone"
         pass
 
-    def on_after_startup():
+    def on_after_startup(self):
         self.__logger.info("Started up!")
-        #self.rpc
         pass
 
-    def on_shutdown():
+    def on_shutdown(self):
         self.__logger.info("Shutting down!")
         pass
-
+"""
     def handle_gcode_queuing(comm_instance,
                              phase,
                              cmd,
@@ -87,7 +85,7 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
             #self.tlist.append(t)
 
         return
-
+"""
 
 def __plugin_load__():
     plugin = CorePlugin()
@@ -105,9 +103,9 @@ def __plugin_load__():
     __plugin__author__              = plugin.author
     __plugin__url__                 = plugin.url
 
-    __plugin_hooks__          = {
-        "octoprint.comm.protocol.gcode.queuing": plugin.handle_gcode_queuing
-    }
+#    __plugin_hooks__          = {
+#        "octoprint.comm.protocol.gcode.queuing": plugin.handle_gcode_queuing
+#    }
     pass
 
 
