@@ -9,9 +9,7 @@ error detection system.
 from __future__ import absolute_import, unicode_literals
 
 import octoprint.plugin
-import logging
-#import numpy as np
-#import threading
+import threading
 #import lib
 """
 MAX_ERROR_CHECK = 5
@@ -43,6 +41,12 @@ class CheckThread(threading.Thread):
         #do something... 
         pass
 """
+
+def worker():
+    print("Worker")
+    return
+
+
 class CorePlugin(octoprint.plugin.StartupPlugin,
                  octoprint.plugin.ShutdownPlugin):
 
@@ -53,17 +57,20 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         self.descr   = "Interface between OctoPrint and the rest of the computer vision"
         self.author  = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
         self.url     = "https://github.com/JBas/18500-Capstone"
+        self.layer = 0
         pass
 
     def on_after_startup(self):
         self.__logger.info("Started up!")
+        t = threading.Thread(target=worker)
+        t.start()
         pass
 
     def on_shutdown(self):
         self.__logger.info("Shutting down!")
         pass
-"""
-    def handle_gcode_queuing(comm_instance,
+"""    
+    def handle_gcode_sent(comm_instance,
                              phase,
                              cmd,
                              cmd_type,
@@ -71,91 +78,22 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
                              *args,
                              **kwargs):
         if gcode and gcode is "G0":
-            logging.getLogger(__name__).info("Queuing a Z-axis command!")
-            #for i in range(len(self.tlist), -1):
-            #    self.tlist[i].incrCycles()
-            #    if tlist[i].getCycles() > MAX_ERROR_CHECK:
-            #        # any errors on this thread's layer
-            #        # should have been caught
-            #        self.tlist.pop(i)
-
-            #t = Thread(target=self.check,
-            #           name = "check",
-            #           args = ())
-            #self.tlist.append(t)
+            self.__logger.info("Sent a Z-axis change command!")
 
         return
 """
 
-def __plugin_load__():
-    plugin = CorePlugin()
 
-    global __plugin__implementation__
-    global __plugin__hooks__
-    global __plugin__name__
-    global __plugin__description__
-    global __plugin__author__
-    global __plugin__url__
+plugin = CorePlugin()
 
-    __plugin_implementation__       = plugin
-    __plugin__name__                = plugin.name
-    __plugin__description__         = plugin.descr
-    __plugin__author__              = plugin.author
-    __plugin__url__                 = plugin.url
-
-#    __plugin_hooks__          = {
-#        "octoprint.comm.protocol.gcode.queuing": plugin.handle_gcode_queuing
-#    }
+__plugin_implementation__       = plugin
+__plugin__name__                = plugin.name
+__plugin__description__         = plugin.descr
+__plugin__author__              = plugin.author
+__plugin__url__                 = plugin.url
+"""    
+    __plugin_hooks__          = {
+        "octoprint.comm.protocol.gcode.sent": plugin.handle_gcode_queuing
+    }
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-def main(gcode):
-    # user submits g-code
-    # system created g-code model
-
-    system = System()
-    system.createRPC(gcode)
-    
-    # ultimaker begins print job
-    system.startPrint()
-
-    while (system.status() is "printing"):
-        # collect image data from camera
-        
-        if (interrupted or timer):
-            disp = ?
-            # assign weights to model disparities
-            weighted = weights*disp
-
-            # sum weighted disparities
-            total_error = np.sum(weighted)
-
-            # pass weighted disparities through activation func
-            decision = activate(total_error)
-            if (decision == some_error_label):
-                system.notify()
-                system.stop()
-            
-            system.update()
-
-    return -1
 """
