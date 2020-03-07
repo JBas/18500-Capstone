@@ -9,6 +9,7 @@ error detection system. The OpenCV Python and C++ documentations were helpful.
 """
 import cv2 as cv
 import numpy as np
+import scipy
 import pdb
 from matplotlib import pyplot as plt
 
@@ -39,11 +40,25 @@ class PPC():
 
         L = cv.computeCorrespondEpilines(pts1, 1, F)
         L_ = cv.computeCorrespondEpilines(pts2, 2, F)
+
+        #self.cloud = _____
         return F
 
     def analyze(self, rpc, layer=0):
         assert(rpc is not None)
         assert(layer >= 0)
+
+        ref = rpc[:layer]
+
+        # ensure that same number of layers are being compared
+        assert(ppc.shape[0] == rpc.shape[0])
+
+        # translate ppc to origin
+
+        # Euclidean similarity
+
+
+
         return
 
 

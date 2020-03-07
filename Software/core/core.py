@@ -15,8 +15,8 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
                  octoprint.plugin.ShutdownPlugin):
     def __init__(self):
         self.name    = "System Core"
-        self.descr   = "Interface between OctoPrint and the rest of the computer vision"
-        self.author  = "Joshua Bas, jnbas@andrew.cmu.edu, joshua.n.bas@gmail.com"
+        self.descr   = "Interface between OctoPrint and the rest of the computer vision algorithms"
+        self.author  = "Joshua Bas (jnbas@andrew.cmu.edu)"
         self.url     = "https://github.com/JBas/18500-Capstone"
         self.layer = 0
         self.tlist = []
