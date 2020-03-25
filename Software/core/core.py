@@ -19,7 +19,8 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         self.author  = "Joshua Bas (jnbas@andrew.cmu.edu)"
         self.url     = "https://github.com/JBas/18500-Capstone"
         self.layer = 0
-        self.tlist = []
+        self.rpi_cam = None
+        self.uart_cam = None
         pass
 
     def on_after_startup(self):
@@ -29,7 +30,7 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
     def on_shutdown(self):
         self._logger.info("Shutting down!")
         pass
-"""    
+    
     def handle_gcode_sent(comm_instance,
                              phase,
                              cmd,
@@ -40,21 +41,11 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         if gcode and gcode is "G0":
             self._logger.info("Sent a Z-axis change command!")
             self.layer += 1
-            for i in range(len(self.tlist), -1):
-                t = self.tlist[i]
-                if (t.isAlive()):
-                    t.incrCycles()
-                else:
-                    # do something with t.hasError
-                    self.tlist.pop(i)
-            t = CheckThread()
-            t.start()
-            self.tlist.append(t)
 
+            hasError = lib.run(rpi_cam, uart_cam)
+            # do something with hasError
 
         return
-"""
-
 
 plugin = CorePlugin()
 
