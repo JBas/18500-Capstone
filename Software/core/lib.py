@@ -12,20 +12,23 @@ def activate(edge_result):
     
 def run(rpi_cam, uart_cam):
     hasError = False
-    error = None
 
     I1 = getRPIArray(rpi_cam)
     I2 = getUARTArray(uart_cam)
 
-    edge_result = _____()
+    blobs1 = blobDetect(I1)
+    blobs2 = blobDetect(I2)
 
-    hasError = activate(edge_result)
+    blob_result1 = blobError(blobs1, blob_history1)
+    blob_result2 = blobError(blobs2, blob_history2)
+
+    hasError = activate(blob_result1, blob_result2)
 
     return hasError
 
 def getRPIArray(camera):
     with picamera.array.PiRGBArray(camera) as output:
-        camera.capture(output, "rgb")
+        camera.capture(output, "hsv")
 
     return output.array
 
