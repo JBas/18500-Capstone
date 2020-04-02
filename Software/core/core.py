@@ -18,7 +18,11 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         self.descr   = "Interface between OctoPrint and the rest of the computer vision algorithms"
         self.author  = "Joshua Bas (jnbas@andrew.cmu.edu)"
         self.url     = "https://github.com/JBas/18500-Capstone"
-        self.layer = 0
+        self.params = {
+            "HSV": (60.0, 0.021, 0.549),
+            "HSV_tolerance": 0.10,
+            "layer": 0
+        }
         self.rpi_cam = None
         self.uart_cam = None
         pass
@@ -30,19 +34,21 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
     def on_shutdown(self):
         self._logger.info("Shutting down!")
         pass
-    
+
+    # handler for when a command is sent to
+    # the printer
     def handle_gcode_sent(comm_instance,
-                             phase,
-                             cmd,
-                             cmd_type,
-                             gcode,
-                             *args,
-                             **kwargs):
+                          phase,
+                          cmd,
+                          cmd_type,
+                          gcode,
+                          *args,
+                          **kwargs):
         if gcode and gcode is "G0":
             self._logger.info("Sent a Z-axis change command!")
             self.layer += 1
 
-            hasError = lib.run(rpi_cam, uart_cam)
+            hasError = lib.run(rpi_cam, uart_cam, self.params)
             # do something with hasError
 
         return
