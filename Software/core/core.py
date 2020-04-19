@@ -9,7 +9,6 @@ error detection system.
 from __future__ import absolute_import, unicode_literals
 
 import octoprint.plugin
-#from lib import CheckThread
 
 class CorePlugin(octoprint.plugin.StartupPlugin,
                  octoprint.plugin.ShutdownPlugin):
@@ -21,7 +20,9 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         self.params = {
             "HSV": (60.0, 0.021, 0.549),
             "HSV_tolerance": 0.10,
-            "layer": 0
+            "layer": 0,
+            "edge_sigma": 3,
+            "weights": [1]
         }
         self.rpi_cam = None
         self.uart_cam = None
@@ -48,10 +49,22 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
             self._logger.info("Sent a Z-axis change command!")
             self.layer += 1
 
-            hasError = lib.run(rpi_cam, uart_cam, self.params)
+            hasError = self.run()
             # do something with hasError
 
         return
+
+    def run(self) -> bool:
+        hasError = False
+
+        #I1 = lib.getRPIArray(self.rpi_cam)
+        #e1 = edgeDetect(I1, self.params)
+
+        #err = edgeError(e1, self.edge_ref, self.params)
+
+        #hasError = activate([err], [1], self.params["weights"])
+
+        return hasError
 
 plugin = CorePlugin()
 
@@ -62,7 +75,7 @@ __plugin__author__              = plugin.author
 __plugin__url__                 = plugin.url
 """    
     __plugin_hooks__          = {
-        "octoprint.comm.protocol.gcode.sent": plugin.handle_gcode_queuing
+        "octoprint.comm.protocol.gcode.sent": plugin.handle_gcode_sent
     }
     pass
 """
