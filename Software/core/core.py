@@ -11,6 +11,7 @@ from __future__ import absolute_import, unicode_literals
 import octoprint.plugin
 
 class CorePlugin(octoprint.plugin.StartupPlugin,
+                 octoprint.plugin.SettingsPlugin,
                  octoprint.plugin.ShutdownPlugin):
     def __init__(self):
         self.name    = "System Core"
@@ -20,16 +21,34 @@ class CorePlugin(octoprint.plugin.StartupPlugin,
         self.params = {
             "HSV": (60.0, 0.021, 0.549),
             "HSV_tolerance": 0.10,
-            "layer": 0,
             "edge_sigma": 3,
             "weights": [1]
         }
+        self.layer = 0
         self.rpi_cam = None
         self.uart_cam = None
         pass
 
+    def get_settings_defaults(self):
+        return dict(
+            params=dict()
+                "HSV": (60.0, 0.021, 0.549),
+                "HSV_tolerance": 0.10,
+                "edge_sigma": 3,
+                "weights": [1]
+            )
+
     def on_after_startup(self):
+        HSV = self._settings.get(["params", "HSV"])
+        HSV_tolerance = self._settings.get(["params", "HSV_tolerance"])
+        egde_sigma = self._settings.get_int(["params", "edge_sigma"])
+        weights = self._settings.get(["params", "weights"])
+
         self._logger.info("Started up!")
+        self._logger.info("HSV: {HSV},
+                           HSV_tolerance: {HSV_tolerance},
+                           edge_sigma: {edge_sigma},
+                           weights: {weights}".format(**locals()))
         pass
 
     def on_shutdown(self):
