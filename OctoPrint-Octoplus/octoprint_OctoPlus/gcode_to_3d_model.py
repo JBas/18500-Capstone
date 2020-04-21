@@ -48,5 +48,7 @@ def gcode_to_3d_model(gcode_file):
 
     return (x,y,z)
 
-
-    
+if __name__=="__main__":
+    filename ="data/gcode" 
+    (x, y, z) = gcode_to_3d_model(filename)
+    graph_it(x, y, z)
