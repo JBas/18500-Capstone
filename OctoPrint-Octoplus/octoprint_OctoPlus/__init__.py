@@ -18,12 +18,6 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
                      octoprint.plugin.ShutdownPlugin):
 
     def __init__(self):
-        self.params = {
-            "HSV": (60.0, 0.021, 0.549),
-            "HSV_tolerance": 0.10,
-            "edge_sigma": 3,
-            "weights": [1]
-        }
         self.layer = 0
         self.rpi_cam = None
         self.uart_cam = None
@@ -50,13 +44,32 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
                 HSV_tolerance=0.10,
                 edge_sigma=3,
                 weights=[1]
-            )
+            ),
+            url="https://en.wikipedia.org/wiki/Hello_world"
         )
+    
+    def on_settings_save(self, data):
+        old_url = self._settings.get(["url"])
+        old_HSV = self._settings.get(["params", "HSV"])
 
-	##~~ SettingsPlugin mixin
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
-    def get_template_vars(self):
-        return dict(HSV=self._settings.get(["params", "HSV"]))
+        url = self._settings.get(["url"])
+        HSV = self._settings.get(["params", "HSV"])
+
+        if (url != old_url) or (HSV != old_HSV):
+            self._logger.info("old url: {old_url}, old HSV: {old_HSV}, new url: {url}, new HSV: {HSV}".format(**locals()))
+        else:
+            self._logger.info("nothing changed!")
+        pass
+
+	##~~ TemplatePlugin mixin
+
+    def get_template_configs(self):
+        return [
+            dict(type="navbar", custom_bindings=False),
+            dict(type="settings", custom_bindings=False)
+        ]
 
 	##~~ AssetPlugin mixin
 
