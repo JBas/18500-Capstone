@@ -1,6 +1,11 @@
 """OctoPlus GCODE to 3D Model
 
 @author     Hannah Preston
+Implemented the original gcode_to_3d_model and graph_it functions that
+operate on x, y, z arrays
+
+@author     Joshua Bas
+Changed to operate on one array of (x,y,z) coords
 
 This program implements the 3D viewer for the OctoPlus plugin 
 """
@@ -64,11 +69,11 @@ def gcode_to_3d_model(gcode_file):
 
     ref = np.asarray(list(zip(x, y, z)))
     ref = ref[ref[:, 2].argsort()]
-
+    ref = ref[:-1] # remove the last point bc it is just to move extruder to home position
 
     return ref
 
 if __name__=="__main__":
     filename ="data/gcode" 
     ref = gcode_to_3d_model(filename)
-    graph_it(ref[5000:20000])
+    graph_it(ref)
