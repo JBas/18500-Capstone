@@ -11,6 +11,9 @@ error detection system.
 from __future__ import absolute_import
 import octoprint.plugin
 from edge import edgeDetect, edgeError
+import numpy as np
+import skimage.io
+
 
 class OctoplusPlugin(octoprint.plugin.StartupPlugin,
                      octoprint.plugin.SettingsPlugin,
@@ -20,8 +23,6 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
 
     def __init__(self):
         self.layer = 0
-        self.rpi_cam = None
-        self.uart_cam = None
         pass
 
     ##~~ StartupPlugin mixin
@@ -33,7 +34,8 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
         weights = self._settings.get(["params", "weights"])
 
         self._logger.info("Started up!")
-        self._logger.info("HSV: {HSV}, HSV_tolerance: {HSV_tolerance}, edge_sigma: {edge_sigma}, weights: {weights}".format(**locals()))
+        self._logger.info("HSV: {HSV}, HSV_tolerance: {HSV_tolerance}," +
+                          "edge_sigma: {edge_sigma}, weights: {weights}".format(**locals()))
         pass
 
 	##~~ SettingsPlugin mixin
@@ -45,25 +47,9 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
                 HSV_tolerance=0.10,
                 edge_sigma=3,
                 weights=[1]
-            ),
-            url="https://en.wikipedia.org/wiki/Hello_world"
+            )
         )
     
-    def on_settings_save(self, data):
-        old_url = self._settings.get(["url"])
-        old_HSV = self._settings.get(["params", "HSV"])
-
-        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-
-        url = self._settings.get(["url"])
-        HSV = self._settings.get(["params", "HSV"])
-
-        if (url != old_url) or (HSV != old_HSV):
-            self._logger.info("old url: {old_url}, old HSV: {old_HSV}, new url: {url}, new HSV: {HSV}".format(**locals()))
-        else:
-            self._logger.info("nothing changed!")
-        pass
-
 	##~~ TemplatePlugin mixin
 
     def get_template_configs(self):
@@ -113,31 +99,28 @@ class OctoplusPlugin(octoprint.plugin.StartupPlugin,
 
     # handler for when a command is sent to
     # the printer
-    def handle_gcode_sent(comm_instance,
-                          phase,
-                          cmd,
-                          cmd_type,
-                          gcode,
-                          *args,
-                          **kwargs):
-        if gcode and gcode is "G0":
-            self._logger.info("Sent a Z-axis change command!")
-            self.layer += 1
-
-            hasError = self.run()
-            # do something with hasError
+    def capture_post_hook(filename, success):
+        self.layer += 1
+        if (success):
+            hasError = self.run(filename)
 
         return
 
-    def run(self):
+    def run(self, filename):
+        params = self._settings.get(["params"])
         hasError = False
 
-        #I1 = lib.getRPIArray(self.rpi_cam)
-        #e1 = edgeDetect(I1, self.params)
+        def activate(results, weights, thresh):
+            if (np.dot(results, weights) < thresh):
+                return False
+            return True
 
-        #err = edgeError(e1, self.edge_ref, self.params)
+        I1 = skimage.io.imread(filename)
+        e1 = edgeDetect(I1, params)
 
-        #hasError = activate([err], [1], self.params["weights"])
+        err = edgeError(e1, self.edge_ref, params)
+
+        hasError = activate([err], params["weights"], 0.5)
 
         return hasError
 
@@ -160,5 +143,5 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		#"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-        "octoprint.comm.protocol.gcode.sent": __plugin_implementation__.handle_gcode_sent
+        "octoprint.timelapse.capture.post": __plugin_implementation__.capture_post_hook
 	}
