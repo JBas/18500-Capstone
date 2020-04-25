@@ -10,6 +10,7 @@ error detection system.
 
 from __future__ import absolute_import
 import octoprint.plugin
+from edge import edgeDetect, edgeError
 
 class OctoplusPlugin(octoprint.plugin.StartupPlugin,
                      octoprint.plugin.SettingsPlugin,

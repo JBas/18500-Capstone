@@ -10,8 +10,11 @@ Changed to operate on one array of (x,y,z) coords
 This program implements the 3D viewer for the OctoPlus plugin 
 """
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib.image as mpimg
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import cv2 
 
 def graph_it(xcoords, ycoords, zcoords):
     # open and read the file
@@ -28,9 +31,7 @@ def graph_it(ref):
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-
     ax.plot(ref[:, 0], ref[:, 1], ref[:, 2], color='b')
-
     plt.show()
 
 def gcode_to_3d_model(gcode_file):
@@ -75,5 +76,37 @@ def gcode_to_3d_model(gcode_file):
 
 if __name__=="__main__":
     filename ="data/gcode" 
+    img = mpimg.imread("data/image_0.jpg")
     ref = gcode_to_3d_model(filename)
+
+    t = 10
+    Rz = np.array([[np.cos(t), -np.sin(t), 0],
+                   [np.sin(t), np.cos(t), 0],
+                   [0, 0, 1]])
+    Ry = np.array([[np.cos(t), 0, np.sin(t)],
+                   [0, 1, 0],
+                   [-np.sin(t), np.cos(t), 0]])
+
+    proj = Ry@(Rz@ref.T)
     graph_it(ref)
+
+    #rvec = np.array([0,0,0], np.float) # rotation vector
+    #tvec = np.array([0,0,0], np.float) # translation vector
+    #fx = fy = 1
+    #cx = cy = 0
+    #cameraMatrix = np.array([[fx,0,cx],[0,fy,cy],[0,0,1]], np.float)
+
+    #result = cv2.projectPoints(ref, rvec, tvec, cameraMatrix, None)
+    #print(result[0].shape)
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111)
+
+    #plt.imshow(img)
+    #ax.plot(result[0][:, 0, 0], result[0][:, 0, 1], color='b')
+
+    #plt.show()
+
+    #for n in range(len(ref)):
+    #    print(src[n], '==>', result[0][n])
+
+

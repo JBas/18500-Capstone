@@ -1,4 +1,6 @@
 """@package docstring
+@author Joshua Bas
+
 Documentation for the edge file.
 Right now it only has edge detection and 
 edge error functions.
@@ -8,7 +10,6 @@ import skimage.feature
 from skimage.color import rgb2hsv, rgb2grey
 from scipy.spatial.distance import directed_hausdorff
 import numpy as np
-from hausdorff import ModHausdorffDist
 
 def HSVMask(image, params: dict):
     """HSVMask.
@@ -82,7 +83,7 @@ if __name__=="__main__":
     import matplotlib.pyplot as plt
 
     params = {"HSV": (60.0, 0.021, 0.549),
-              "HSV_tolerance": 0.10,
+              "HSV_tolerance": 0,
               "edge_sigma":3,
               "tau":3,
               "H_thresh":100
