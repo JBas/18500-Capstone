@@ -142,5 +142,5 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		#"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-        "octoprint.comm.protocol.gcode.sent": __plugin_implementation__.handle_gcode_sent
+        "octoprint.timelapse.capture.post": __plugin_implementation__.capture_post_hook
 	}
